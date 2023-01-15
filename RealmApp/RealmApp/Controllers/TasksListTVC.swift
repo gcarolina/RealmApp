@@ -8,25 +8,25 @@ import RealmSwift
 final class TasksListTVC: UITableViewController {
     
     var tasksList: Results<TasksList>!
+    var notificationToken: NotificationToken?
     
     @IBOutlet private weak var segmentedControl: UISegmentedControl!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        hideKeyboardWhenTappedAround()
         setupSegmentedControl()
-        
+    
         //StorageManager.deleteAll()
-        
         tasksList = StorageManager.getAllTasksLists().sorted(byKeyPath: "name")
+        addTasksListsObserver()
         
         let add = UIBarButtonItem(barButtonSystemItem: .add,
                                   target: self,
                                   action: #selector (addBarButtonSystemItemSelector))
         
         self.navigationItem.setRightBarButtonItems([add, editButtonItem], animated: true)
-        
     }
-    
     
     // MARK: - Table view data source
     
@@ -36,15 +36,14 @@ final class TasksListTVC: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        
         let taskList = tasksList[indexPath.row]
-        cell.textLabel?.text = taskList.name
-        cell.detailTextLabel?.text = taskList.tasks.count.description
+        
+        cell.configure(with: taskList)
         return cell
     }
     
     // MARK: - Table view delegate
-    // Override to support conditional editing of the table view.
+    
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return true
     }
@@ -54,56 +53,41 @@ final class TasksListTVC: UITableViewController {
         
         let deleteContextItem = UIContextualAction(style: .destructive, title: "Delete") { _, _, _ in
             StorageManager.deleteList(currentList)
-            tableView.deleteRows(at: [indexPath], with: .fade)
         }
         
         let editContextItem = UIContextualAction(style: .destructive, title: "Edit") { _, _, _ in
-            self.alertForAddAndUpdatesListTasks(currentList) {
-                tableView.reloadRows(at: [indexPath], with: .automatic)
-            }
+            self.alertForAddAndUpdatesListTasks(currentList)
         }
         
         let doneContextItem = UIContextualAction(style: .destructive, title: "Done") { _, _, _ in
-            
+            StorageManager.makeAllDone(currentList)
         }
         
-        deleteContextItem.backgroundColor = .init(red: 107, green: 41, blue: 47)
-        editContextItem.backgroundColor = .init(red: 96, green: 89, blue: 159)
-        doneContextItem.backgroundColor = .init(red: 143, green: 113, blue: 140)
+        deleteContextItem.backgroundColor = .init(red: 107, green: 29, blue: 46)
+        editContextItem.backgroundColor = .init(red: 79, green: 56, blue: 139)
+        doneContextItem.backgroundColor = .init(red: 97, green: 60, blue: 106)
         
         let swipeActions = UISwipeActionsConfiguration(actions: [deleteContextItem, editContextItem, doneContextItem])
         return swipeActions
     }
     
-    
     @IBAction func segmentedControlChanged(_ sender: UISegmentedControl) {
         let byKeyPath = sender.selectedSegmentIndex == 0 ? "name" : "date"
-        
         tasksList = tasksList.sorted(byKeyPath: byKeyPath)
-        tableView.reloadData()
     }
-    
-    /*
-     // Override to support rearranging the table view.
-     override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-     
-     }
-     */
-    
-    /*
-     // Override to support conditional rearranging of the table view.
-     override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-     // Return false if you do not want the item to be re-orderable.
-     return true
-     }
-     */
     
     // MARK: - Navigation
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let taskList = tasksList[indexPath.row]
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        guard let vc = storyboard.instantiateViewController(withIdentifier: "TasksTVC") as? TasksTVC else { return }
+        vc.currentTasksList = taskList
+        navigationController?.pushViewController(vc, animated: true)
     }
     
-    // MARK: - Private func
+    // MARK: - Private func-s
+    
     private func setupSegmentedControl() {
         let titleTextUnselectedControl = [NSAttributedString.Key.foregroundColor: UIColor.init(red: 40, green: 15, blue: 84)]
         segmentedControl.setTitleTextAttributes(titleTextUnselectedControl, for:.normal)
@@ -113,14 +97,10 @@ final class TasksListTVC: UITableViewController {
     }
     
     @objc func addBarButtonSystemItemSelector() {
-        alertForAddAndUpdatesListTasks { [weak self] in
-            print("List was added or edited")
-            self?.tableView.reloadData()
-        }
+        alertForAddAndUpdatesListTasks()
     }
     
-    private func alertForAddAndUpdatesListTasks(_ tasksList: TasksList? = nil,
-                                                complition: @escaping () -> Void) {
+    private func alertForAddAndUpdatesListTasks(_ tasksList: TasksList? = nil) {
         
         let title = tasksList == nil ? "New List" : "Edit List"
         let message = "Please insert list name"
@@ -138,13 +118,13 @@ final class TasksListTVC: UITableViewController {
             
             /// логика редактирования
             if let tasksList = tasksList {
-                StorageManager.editTasksList(tasksList, newListName: newListName, complition: complition)
+                StorageManager.editTasksList(tasksList,
+                                             newListName: newListName)
             /// логика создания нового списка
             } else {
                 let tasksList = TasksList()
                 tasksList.name = newListName
                 StorageManager.saveTasksList(tasksList: tasksList)
-                complition()
             }
         }
         
@@ -163,5 +143,43 @@ final class TasksListTVC: UITableViewController {
             alertTextField.placeholder = "List Name"
         }
         self.present(alert, animated: true)
+    }
+    
+    private func addTasksListsObserver() {
+        // Realm notification
+        notificationToken = tasksList.observe { [weak self] change in
+            guard let self = self else { return }
+            switch change {
+            case .initial:
+                print("initial element")
+            case .update(_, let deletions, let insertions, let modifications):
+                if !modifications.isEmpty {
+                    let indexPathArray = self.createIndexPathArray(values: modifications)
+                    self.tableView.reloadRows(at: indexPathArray,
+                                              with: .automatic)
+                }
+                if !deletions.isEmpty {
+                    let indexPathArray = self.createIndexPathArray(values: deletions)
+                    self.tableView.deleteRows(at: indexPathArray,
+                                              with: .automatic)
+                }
+                if !insertions.isEmpty {
+                    let indexPathArray = self.createIndexPathArray(values: insertions)
+                    self.tableView.insertRows(at: indexPathArray,
+                                              with: .automatic)
+                }
+                
+            case .error(let error):
+                print("error: \(error)")
+            }
+        }
+    }
+    
+    private func createIndexPathArray(values: [Int]) -> [IndexPath] {
+        var indexPathArray = [IndexPath]()
+        for row in values {
+            indexPathArray.append(IndexPath(row: row, section: 0))
+        }
+        return indexPathArray
     }
 }

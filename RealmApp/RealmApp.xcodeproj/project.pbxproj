@@ -19,6 +19,10 @@
 		F15F22AC296F200A00F3394B /* TasksListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15F22AB296F200A00F3394B /* TasksListModel.swift */; };
 		F15F22AE296F20A700F3394B /* ListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15F22AD296F20A700F3394B /* ListModel.swift */; };
 		F15F22B0296F276100F3394B /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15F22AF296F276100F3394B /* StorageManager.swift */; };
+		F1FB2FF429743EED006C0E49 /* UIViewControllerExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FB2FF329743EED006C0E49 /* UIViewControllerExt.swift */; };
+		F1FB2FF62974451F006C0E49 /* TasksTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FB2FF52974451F006C0E49 /* TasksTVC.swift */; };
+		F1FB2FF829745893006C0E49 /* TasksTVCExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FB2FF729745893006C0E49 /* TasksTVCExt.swift */; };
+		F1FB2FFA297482C3006C0E49 /* UITableViewCellExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FB2FF9297482C3006C0E49 /* UITableViewCellExt.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +38,10 @@
 		F15F22AB296F200A00F3394B /* TasksListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksListModel.swift; sourceTree = "<group>"; };
 		F15F22AD296F20A700F3394B /* ListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListModel.swift; sourceTree = "<group>"; };
 		F15F22AF296F276100F3394B /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
+		F1FB2FF329743EED006C0E49 /* UIViewControllerExt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewControllerExt.swift; sourceTree = "<group>"; };
+		F1FB2FF52974451F006C0E49 /* TasksTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksTVC.swift; sourceTree = "<group>"; };
+		F1FB2FF729745893006C0E49 /* TasksTVCExt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksTVCExt.swift; sourceTree = "<group>"; };
+		F1FB2FF9297482C3006C0E49 /* UITableViewCellExt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITableViewCellExt.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,11 +76,11 @@
 		F15F2287296F03A500F3394B /* RealmApp */ = {
 			isa = PBXGroup;
 			children = (
+				F15F229F296F061700F3394B /* Extensions */,
 				F15F22AA296F1C4400F3394B /* Managers */,
 				F15F22A9296F1C3A00F3394B /* Models */,
 				F15F229D296F052800F3394B /* Views */,
 				F15F229E296F052F00F3394B /* Controllers */,
-				F15F229F296F061700F3394B /* Extensions */,
 				F15F2291296F03AE00F3394B /* Assets.xcassets */,
 				F15F229C296F051400F3394B /* AppDelegates */,
 				F15F2296296F03AE00F3394B /* Info.plist */,
@@ -102,6 +110,7 @@
 			isa = PBXGroup;
 			children = (
 				F15F22A2296F0E6700F3394B /* TasksListTVC.swift */,
+				F1FB2FF52974451F006C0E49 /* TasksTVC.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -110,6 +119,9 @@
 			isa = PBXGroup;
 			children = (
 				F15F22A0296F062B00F3394B /* UIColorExt.swift */,
+				F1FB2FF329743EED006C0E49 /* UIViewControllerExt.swift */,
+				F1FB2FF729745893006C0E49 /* TasksTVCExt.swift */,
+				F1FB2FF9297482C3006C0E49 /* UITableViewCellExt.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -211,11 +223,15 @@
 			files = (
 				F15F22A3296F0E6700F3394B /* TasksListTVC.swift in Sources */,
 				F15F2289296F03A500F3394B /* AppDelegate.swift in Sources */,
+				F1FB2FFA297482C3006C0E49 /* UITableViewCellExt.swift in Sources */,
+				F1FB2FF429743EED006C0E49 /* UIViewControllerExt.swift in Sources */,
 				F15F22AC296F200A00F3394B /* TasksListModel.swift in Sources */,
+				F1FB2FF829745893006C0E49 /* TasksTVCExt.swift in Sources */,
 				F15F22B0296F276100F3394B /* StorageManager.swift in Sources */,
 				F15F22AE296F20A700F3394B /* ListModel.swift in Sources */,
 				F15F22A1296F062B00F3394B /* UIColorExt.swift in Sources */,
 				F15F228B296F03A500F3394B /* SceneDelegate.swift in Sources */,
+				F1FB2FF62974451F006C0E49 /* TasksTVC.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

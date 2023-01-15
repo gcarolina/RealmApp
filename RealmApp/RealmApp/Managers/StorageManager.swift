@@ -37,12 +37,10 @@ class StorageManager {
     }
     
     static func editTasksList(_ tasksList: TasksList,
-                              newListName: String,
-                              complition: @escaping () -> Void) {
+                              newListName: String) {
         do {
             try realm.write {
                 tasksList.name = newListName
-                complition()
             }
         } catch {
             print("editList error: \(error)")
@@ -56,6 +54,61 @@ class StorageManager {
             }
         } catch {
             print("saveTasksList error: \(error)")
+        }
+    }
+    
+    static func makeAllDone(_ taskList: TasksList) {
+        do {
+            try realm.write {
+                taskList.tasks.setValue(true, forKey: "isComplete")
+            }
+        } catch {
+            print("makeAllDone error: \(error)")
+        }
+    }
+    
+    
+    // MARK: - Tasks Methods
+    
+    static func saveTask(_ taskList: TasksList?, task: Task) {
+        do {
+            try realm.write {
+                guard let taskList = taskList else { return }
+                taskList.tasks.append(task)
+            }
+        } catch {
+            print("saveTask error: \(error)")
+        }
+    }
+    
+    static func editTask(_ task: Task, newTaskName: String, newNote: String) {
+        do {
+            try realm.write {
+                task.name = newTaskName
+                task.note = newNote
+            }
+        } catch {
+            print("editTask error: \(error)")
+        }
+    }
+    
+    static func deleteTask(_ task: Task) {
+        do {
+            try realm.write {
+                realm.delete(task)
+            }
+        } catch {
+            print("deleteTask error: \(error)")
+        }
+    }
+    
+    static func makeDone(_ task: Task) {
+        do {
+            try realm.write {
+                task.isComplete.toggle()
+            }
+        } catch {
+            print("makeDoneTask error: \(error)")
         }
     }
 }
