@@ -102,13 +102,13 @@ class StorageManager {
         }
     }
     
-    static func makeDone(_ task: Task) {
+    static func makeDoneOrMoveCell(_ task: Task) {
         do {
             try realm.write {
                 task.isComplete.toggle()
             }
         } catch {
-            print("makeDoneTask error: \(error)")
+            print("makeDoneOrMoveCell error: \(error)")
         }
     }
 }

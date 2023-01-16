@@ -100,6 +100,8 @@
                         <color key="backgroundColor" red="0.18431372549019609" green="0.14901960780000001" blue="0.28627450980392155" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <color key="tintColor" red="0.74117647060000003" green="0.69411764710000001" blue="0.82745098039999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <color key="separatorColor" red="0.73333333329999995" green="0.68627450980000004" blue="0.82745098039999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="sectionIndexBackgroundColor" red="0.73333333329999995" green="0.6874115824" blue="0.82745098039999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="sectionIndexTrackingBackgroundColor" red="0.73333333329999995" green="0.6874115824" blue="0.82745098039999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="Cell" textLabel="SN0-bW-6mC" detailTextLabel="o4C-Vu-Gk2" style="IBUITableViewCellStyleSubtitle" id="uNg-1f-5NS">
                                 <rect key="frame" x="0.0" y="50" width="393" height="63.666667938232422"/>

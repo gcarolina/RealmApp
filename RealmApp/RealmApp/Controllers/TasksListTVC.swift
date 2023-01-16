@@ -18,7 +18,7 @@ final class TasksListTVC: UITableViewController {
         setupSegmentedControl()
     
         //StorageManager.deleteAll()
-        tasksList = StorageManager.getAllTasksLists().sorted(byKeyPath: "name")
+        tasksList = StorageManager.getAllTasksLists().sorted(byKeyPath: TextForKeyPath.name.rawValue)
         addTasksListsObserver()
         
         let add = UIBarButtonItem(barButtonSystemItem: .add,
@@ -51,15 +51,15 @@ final class TasksListTVC: UITableViewController {
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let currentList = tasksList[indexPath.row]
         
-        let deleteContextItem = UIContextualAction(style: .destructive, title: "Delete") { _, _, _ in
+        let deleteContextItem = UIContextualAction(style: .destructive, title: TextForContextItem.delete.rawValue) { _, _, _ in
             StorageManager.deleteList(currentList)
         }
         
-        let editContextItem = UIContextualAction(style: .destructive, title: "Edit") { _, _, _ in
-            self.alertForAddAndUpdatesListTasks(currentList)
+        let editContextItem = UIContextualAction(style: .destructive, title: TextForContextItem.edit.rawValue) { _, _, _ in
+            self.alertForAddAndUpdatesListTasks(tasksListTVCFlow: .editingList(taskList: currentList))
         }
         
-        let doneContextItem = UIContextualAction(style: .destructive, title: "Done") { _, _, _ in
+        let doneContextItem = UIContextualAction(style: .destructive, title: TextForContextItem.done.rawValue) { _, _, _ in
             StorageManager.makeAllDone(currentList)
         }
         
@@ -72,8 +72,9 @@ final class TasksListTVC: UITableViewController {
     }
     
     @IBAction func segmentedControlChanged(_ sender: UISegmentedControl) {
-        let byKeyPath = sender.selectedSegmentIndex == 0 ? "name" : "date"
+        let byKeyPath = sender.selectedSegmentIndex == 0 ? TextForKeyPath.name.rawValue : TextForKeyPath.date.rawValue
         tasksList = tasksList.sorted(byKeyPath: byKeyPath)
+        tableView.reloadData()
     }
     
     // MARK: - Navigation
@@ -94,55 +95,6 @@ final class TasksListTVC: UITableViewController {
         
         let titleTextSelectedControl = [NSAttributedString.Key.foregroundColor: UIColor.init(red: 189, green: 177, blue: 211)]
         segmentedControl.setTitleTextAttributes(titleTextSelectedControl, for:.selected)
-    }
-    
-    @objc func addBarButtonSystemItemSelector() {
-        alertForAddAndUpdatesListTasks()
-    }
-    
-    private func alertForAddAndUpdatesListTasks(_ tasksList: TasksList? = nil) {
-        
-        let title = tasksList == nil ? "New List" : "Edit List"
-        let message = "Please insert list name"
-        let doneButtonName = tasksList == nil ? "Save" : "Update"
-        
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        
-        var alertTextField: UITextField!
-        let saveAction = UIAlertAction(title: doneButtonName, style: .default) { _ in
-            
-            guard let newListName = alertTextField.text,
-                  !newListName.isEmpty else {
-                return
-            }
-            
-            /// логика редактирования
-            if let tasksList = tasksList {
-                StorageManager.editTasksList(tasksList,
-                                             newListName: newListName)
-            /// логика создания нового списка
-            } else {
-                let tasksList = TasksList()
-                tasksList.name = newListName
-                StorageManager.saveTasksList(tasksList: tasksList)
-            }
-        }
-        
-        let cancelAction = UIAlertAction(title: "Cancel", style: .destructive)
-        cancelAction.setValue(UIColor.init(red: 107, green: 41, blue: 47), forKey: "titleTextColor")
-        saveAction.setValue(UIColor.init(red: 40, green: 15, blue: 84), forKey: "titleTextColor")
-        
-        alert.addAction(saveAction)
-        alert.addAction(cancelAction)
-        
-        alert.addTextField { textField in
-            alertTextField = textField
-            if let listName = tasksList {
-                alertTextField.text = listName.name
-            }
-            alertTextField.placeholder = "List Name"
-        }
-        self.present(alert, animated: true)
     }
     
     private func addTasksListsObserver() {
@@ -168,7 +120,6 @@ final class TasksListTVC: UITableViewController {
                     self.tableView.insertRows(at: indexPathArray,
                                               with: .automatic)
                 }
-                
             case .error(let error):
                 print("error: \(error)")
             }

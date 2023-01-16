@@ -5,6 +5,11 @@
 import UIKit
 import RealmSwift
 
+enum Sections: Int {
+    case firstSection = 0
+    case secondSection = 1
+}
+
 final class TasksTVC: UITableViewController {
 
     var currentTasksList: TasksList?
@@ -36,7 +41,7 @@ final class TasksTVC: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        section == 0 ? "Not completed tasks" : "Completed tasks"
+        section == 0 ? TitleTaskForHeaderInSection.notCompleted.rawValue : TitleTaskForHeaderInSection.completed.rawValue
     }
     
     override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
@@ -67,18 +72,18 @@ final class TasksTVC: UITableViewController {
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let task = indexPath.section == 0 ? notCompletedTasks[indexPath.row] : completedTasks[indexPath.row]
         
-        let deleteContextItem = UIContextualAction(style: .destructive, title: "Delete") { _, _, _ in
+        let deleteContextItem = UIContextualAction(style: .destructive, title: TextForTasksTextForContextItem.delete.rawValue) { _, _, _ in
             StorageManager.deleteTask(task)
             tableView.deleteRows(at: [indexPath], with: .fade)
         }
         
-        let editContextItem = UIContextualAction(style: .destructive, title: "Edit") { _, _, _ in
-            self.alertForAddAndUpdatesList(task)
+        let editContextItem = UIContextualAction(style: .destructive, title: TextForTasksTextForContextItem.edit.rawValue) { _, _, _ in
+            self.alertForAddAndUpdatesList(tasksTVCFlow: .editingTask(task: task))
         }
         
-        let doneText = task.isComplete ? "Not done" : "Done"
+        let doneText = task.isComplete ? TextForTasksTextForContextItem.notDone.rawValue : TextForTasksTextForContextItem.done.rawValue
         let doneContextItem = UIContextualAction(style: .destructive, title: doneText) { _, _, _ in
-            StorageManager.makeDone(task)
+            StorageManager.makeDoneOrMoveCell(task)
             self.filteringTask()
         }
         
@@ -95,6 +100,20 @@ final class TasksTVC: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
+        guard let completedTasks = completedTasks, var completedTasksArray = Array(completedTasks) as? [Task],
+              let notCompletedTasks = notCompletedTasks, var notCompletedTasksArray = Array(notCompletedTasks) as? [Task] else { return }
+        
+        if to.section != fromIndexPath.section {
+            if to.section == Sections.firstSection.rawValue {
+                let currentTask = completedTasksArray.remove(at: fromIndexPath.row)
+                notCompletedTasksArray.insert(currentTask, at: to.row)
+                StorageManager.makeDoneOrMoveCell(currentTask)
+            } else if to.section == Sections.secondSection.rawValue {
+                let currentTask = notCompletedTasksArray.remove(at: fromIndexPath.row)
+                completedTasksArray.insert(currentTask, at: to.row)
+                StorageManager.makeDoneOrMoveCell(currentTask)
+            }
+        }
     }
 
     func filteringTask() {
