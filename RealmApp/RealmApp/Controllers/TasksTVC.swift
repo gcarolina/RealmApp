@@ -100,8 +100,8 @@ final class TasksTVC: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-        guard let completedTasks = completedTasks, var completedTasksArray = Array(completedTasks) as? [Task],
-              let notCompletedTasks = notCompletedTasks, var notCompletedTasksArray = Array(notCompletedTasks) as? [Task] else { return }
+        guard let completedTasks = completedTasks, let completedTasksArray = Array(completedTasks) as? [Task],
+              let notCompletedTasks = notCompletedTasks, let notCompletedTasksArray = Array(notCompletedTasks) as? [Task] else { return }
         
         if to.section != fromIndexPath.section {
             if to.section == Sections.firstSection.rawValue {
