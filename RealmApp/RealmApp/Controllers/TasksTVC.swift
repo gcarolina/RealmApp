@@ -11,7 +11,7 @@ enum Sections: Int {
 }
 
 final class TasksTVC: UITableViewController {
-
+    var notificationTokenForTask: NotificationToken?
     var currentTasksList: TasksList?
     
     private var notCompletedTasks: Results<Task>!
@@ -105,13 +105,9 @@ final class TasksTVC: UITableViewController {
         
         if to.section != fromIndexPath.section {
             if to.section == Sections.firstSection.rawValue {
-                let currentTask = completedTasksArray.remove(at: fromIndexPath.row)
-                notCompletedTasksArray.insert(currentTask, at: to.row)
-                StorageManager.makeDoneOrMoveCell(currentTask)
+                movingCell(fromTasksArray: completedTasksArray, toTasksArray: notCompletedTasksArray, fromIndexPath: fromIndexPath, to: to)
             } else if to.section == Sections.secondSection.rawValue {
-                let currentTask = notCompletedTasksArray.remove(at: fromIndexPath.row)
-                completedTasksArray.insert(currentTask, at: to.row)
-                StorageManager.makeDoneOrMoveCell(currentTask)
+                movingCell(fromTasksArray: notCompletedTasksArray, toTasksArray: completedTasksArray, fromIndexPath: fromIndexPath, to: to)
             }
         }
     }
@@ -120,5 +116,12 @@ final class TasksTVC: UITableViewController {
         notCompletedTasks = currentTasksList?.tasks.filter("isComplete = false")
         completedTasks = currentTasksList?.tasks.filter("isComplete = true")
         tableView.reloadData()
+    }
+    
+    private func movingCell(fromTasksArray: [Task]?, toTasksArray: [Task]?, fromIndexPath: IndexPath, to: IndexPath) {
+        guard var fromTasksArray = fromTasksArray, var toTasksArray = toTasksArray else { return }
+        let currentTask = fromTasksArray.remove(at: fromIndexPath.row)
+        toTasksArray.insert(currentTask, at: to.row)
+        StorageManager.makeDoneOrMoveCell(currentTask)
     }
 }
