@@ -107,8 +107,8 @@ final class TasksListTVC: UITableViewController {
             case .update(_, let deletions, let insertions, let modifications):
                 if !modifications.isEmpty {
                     let indexPathArray = self.createIndexPathArray(values: modifications)
-                    self.tableView.reloadRows(at: indexPathArray,
-                                              with: .automatic)
+                    //self.tableView.reloadRows(at: indexPathArray, with: .automatic)
+                    self.tableView.reloadData()
                 }
                 if !deletions.isEmpty {
                     let indexPathArray = self.createIndexPathArray(values: deletions)
